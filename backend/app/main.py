@@ -10,6 +10,9 @@ def health():
 
 origins = [
     "http://localhost:3000",
+    "https://d2jl13pojcwbb7.cloudfront.net",
+    "https://deployment-tool.pl",
+    "https://api.deployment-tool.pl",
 ]
 
 app.include_router(router)
