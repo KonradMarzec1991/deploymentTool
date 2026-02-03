@@ -2,22 +2,25 @@
 
 import { useEffect, useState } from "react";
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
 export default function Home() {
   const [repos, setRepos] = useState([]);
   const [deployments, setDeployments] = useState([]);
 
+
   useEffect(() => {
-    fetch("http://localhost:8000/repos")
+    fetch(`${API_URL}/repos`)
       .then(res => res.json())
       .then(setRepos);
 
-    fetch("http://localhost:8000/deployments")
+    fetch(`${API_URL}/deployments`)
       .then(res => res.json())
       .then(setDeployments);
   }, []);
 
   const approve = async (id: number) => {
-    await fetch(`http://localhost:8000/deployments/${id}/approve`, {
+    await fetch(`${API_URL}/${id}/approve`, {
       method: "POST",
     });
     location.reload();
