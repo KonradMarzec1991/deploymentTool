@@ -1,57 +1,52 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useRepositories } from "@/hooks/useRepositories";
+import { useDeployments } from "@/hooks/useDeployments";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
+export default function HomePage() {
+  const {
+    data: repos,
+    loading: reposLoading,
+    error: reposError,
+  } = useRepositories();
 
-export default function Home() {
-  const [repos, setRepos] = useState([]);
-  const [deployments, setDeployments] = useState([]);
+  const {
+    data: deployments,
+    loading: deploymentsLoading,
+    error: deploymentsError,
+  } = useDeployments();
 
+  if (reposLoading || deploymentsLoading) {
+    return <p>Loading data…</p>;
+  }
 
-  useEffect(() => {
-    fetch(`${API_URL}/repos`)
-      .then(res => res.json())
-      .then(setRepos);
+  if (reposError) {
+    return <p style={{ color: "red" }}>Repos error: {reposError}</p>;
+  }
 
-    fetch(`${API_URL}/deployments`)
-      .then(res => res.json())
-      .then(setDeployments);
-  }, []);
-
-  const approve = async (id: number) => {
-    await fetch(`${API_URL}/${id}/approve`, {
-      method: "POST",
-    });
-    location.reload();
-  };
+  if (deploymentsError) {
+    return <p style={{ color: "red" }}>Deployments error: {deploymentsError}</p>;
+  }
 
   return (
-    <main style={{ padding: 40 }}>
+    <main>
       <h1>CI/CD Platform</h1>
 
-      <h2>Repositories</h2>
-      <ul>
-        {repos.map((r: any) => (
-          <li key={r.id}>
-            {r.name} – {r.git_url}
-          </li>
+      <section>
+        <h2>Repositories</h2>
+        {repos.map((repo) => (
+          <div key={repo.id}>{repo.name}</div>
         ))}
-      </ul>
+      </section>
 
-      <h2>Deployments</h2>
-      <ul>
-        {deployments.map((d: any) => (
-          <li key={d.id}>
-            {d.repo} | {d.env} | {d.status}
-            {d.status === "WAITING_FOR_APPROVAL" && (
-              <button onClick={() => approve(d.id)}>
-                Approve
-              </button>
-            )}
-          </li>
+      <section>
+        <h2>Deployments</h2>
+        {deployments.map((d) => (
+          <div key={d.id}>
+            {d.repo} → {d.env} → {d.status}
+          </div>
         ))}
-      </ul>
+      </section>
     </main>
   );
 }
