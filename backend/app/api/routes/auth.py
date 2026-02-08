@@ -1,0 +1,105 @@
+import os
+
+from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi.responses import RedirectResponse
+from sqlmodel import select
+
+from app.api.deps import SessionDep, require_admin_token
+from app.models import User, UserCreate, UserRead
+from app.services import (
+    BACKEND_URL,
+    FRONTEND_URL,
+    create_access_token,
+    create_state,
+    github_exchange_code,
+    github_fetch_user,
+)
+
+router = APIRouter(prefix="/auth", tags=["auth"])
+
+
+@router.get("/github/login")
+async def github_login():
+    if not BACKEND_URL or not FRONTEND_URL:
+        raise HTTPException(status_code=500, detail="oauth urls not configured")
+    if not os.getenv("GITHUB_CLIENT_ID"):
+        raise HTTPException(status_code=500, detail="github oauth not configured")
+    state = create_state()
+    url = (
+        "https://github.com/login/oauth/authorize"
+        f"?client_id={os.getenv('GITHUB_CLIENT_ID')}"
+        f"&redirect_uri={BACKEND_URL}/auth/github/callback"
+        f"&state={state}"
+        "&scope=read:user%20user:email"
+    )
+    response = RedirectResponse(url)
+    response.set_cookie(
+        "oauth_state",
+        state,
+        max_age=600,
+        httponly=True,
+        secure=BACKEND_URL.startswith("https"),
+        samesite="lax",
+    )
+    return response
+
+
+@router.get("/github/callback")
+async def github_callback(
+    request: Request,
+    code: str,
+    state: str,
+    session: SessionDep,
+):
+    if not FRONTEND_URL:
+        raise HTTPException(status_code=500, detail="oauth urls not configured")
+    cookie_state = request.cookies.get("oauth_state")
+    if not cookie_state or cookie_state != state:
+        raise HTTPException(status_code=400, detail="invalid oauth state")
+
+    access_token = await github_exchange_code(code)
+    github_user, email = await github_fetch_user(access_token)
+    print("**********")
+    print(github_user)
+    login = github_user.get("login")
+    github_id = github_user.get("id")
+
+    if not login or not github_id:
+        raise HTTPException(status_code=401, detail="github user invalid")
+
+    user = session.exec(
+        select(User).where(User.provider == "github", User.provider_login == login)
+    ).first()
+
+    if not user or not user.is_active:
+        raise HTTPException(status_code=403, detail="user not allowed")
+
+    user.provider_id = str(github_id)
+    if email:
+        user.email = email
+    session.add(user)
+    session.commit()
+    session.refresh(user)
+
+    token = create_access_token(user)
+    response = RedirectResponse(f"{FRONTEND_URL}/login?token={token}")
+    response.delete_cookie("oauth_state")
+    return response
+
+
+@router.post("/users", response_model=UserRead)
+def create_user_allowlist(
+    payload: UserCreate,
+    session: SessionDep,
+    _auth: None = Depends(require_admin_token),
+):
+    user = User(
+        provider=payload.provider,
+        provider_login=payload.provider_login,
+        role=payload.role,
+        is_active=payload.is_active,
+    )
+    session.add(user)
+    session.commit()
+    session.refresh(user)
+    return user

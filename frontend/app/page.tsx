@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { CCol, CContainer, CRow } from '@coreui/react';
 import { useRepositories } from '@/hooks/useRepositories';
 import { useDeployments } from '@/hooks/useDeployments';
@@ -10,12 +10,15 @@ import {
   ErrorState,
   StatCard,
   HeroHeader,
-  AdminCard,
+  AccountCard,
   RepositoriesCard,
   DeploymentsCard,
 } from '@/components';
+import { clearAuthToken, getAuthToken } from '@/lib/auth';
+import { useRouter } from 'next/navigation';
 
 export default function HomePage() {
+  const router = useRouter();
   const { data: repos, loading: reposLoading, error: reposError } = useRepositories();
 
   const {
@@ -25,9 +28,18 @@ export default function HomePage() {
     refetch: refetchDeployments,
   } = useDeployments();
 
-  const [adminToken, setAdminToken] = useState('');
   const [actionError, setActionError] = useState<string | null>(null);
   const [approvingId, setApprovingId] = useState<string | null>(null);
+  const [authChecked, setAuthChecked] = useState(false);
+
+  useEffect(() => {
+    const token = getAuthToken();
+    if (!token) {
+      router.replace('/login');
+      return;
+    }
+    setAuthChecked(true);
+  }, [router]);
 
   const waitingCount = useMemo(
     () => deployments.filter((d) => d.status === 'WAITING_FOR_APPROVAL').length,
@@ -35,24 +47,21 @@ export default function HomePage() {
   );
 
   async function handleApprove(deploymentId: string) {
-    if (!adminToken) {
-      setActionError('Admin token is required');
-      return;
-    }
-
     setActionError(null);
     setApprovingId(deploymentId);
 
     try {
-      await api.post(`/deployments/${deploymentId}/approve`, null, {
-        headers: { 'x-admin-token': adminToken },
-      });
+      await api.post(`/deployments/${deploymentId}/approve`, null);
       await refetchDeployments();
     } catch (err: any) {
       setActionError(err?.message ?? 'Approve failed');
     } finally {
       setApprovingId(null);
     }
+  }
+
+  if (!authChecked) {
+    return <LoadingState message="Redirecting to login…" />;
   }
 
   if (reposLoading || deploymentsLoading) {
@@ -86,10 +95,11 @@ export default function HomePage() {
 
         <CRow className="g-4">
           <CCol lg={5}>
-            <AdminCard
-              adminToken={adminToken}
-              actionError={actionError}
-              onTokenChange={setAdminToken}
+            <AccountCard
+              onSignOut={() => {
+                clearAuthToken();
+                router.replace('/login');
+              }}
             />
           </CCol>
 
@@ -100,6 +110,7 @@ export default function HomePage() {
 
         <CRow className="g-4 mt-1">
           <CCol>
+            {actionError && <ErrorState message={actionError} />}
             <DeploymentsCard
               deployments={deployments}
               approvingId={approvingId}

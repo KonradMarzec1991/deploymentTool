@@ -64,10 +64,8 @@ jobs:
           IMAGE_TAG=${GITHUB_SHA::7}
           docker build -t deployment_tool:${IMAGE_TAG} .
           docker tag deployment_tool:${IMAGE_TAG} 622711946516.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/deployment_tool:${IMAGE_TAG}
-          docker tag deployment_tool:${IMAGE_TAG} 622711946516.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/deployment_tool:latest
 
       - name: Docker push
         run: |
           IMAGE_TAG=${GITHUB_SHA::7}
           docker push 622711946516.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/deployment_tool:${IMAGE_TAG}
-          docker push 622711946516.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/deployment_tool:latest

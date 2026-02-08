@@ -1,7 +1,7 @@
 export * from './cards/StatCard';
 
 export * from './sections/HeroHeader';
-export * from './sections/AdminCard';
+export * from './sections/AccountCard';
 export * from './sections/RepositoriesCard';
 export * from './sections/DeploymentsCard';
 

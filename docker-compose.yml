@@ -16,9 +16,8 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     container_name: deploymenttool-backend
-    environment:
-      DATABASE_URL: postgresql+psycopg2://postgres:postgres@db:5432/postgres
-      ADMIN_TOKEN: admin
+    env_file:
+      - ./backend/.env
     ports:
       - "8002:8000"
     depends_on:

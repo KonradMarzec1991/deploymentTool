@@ -78,6 +78,11 @@ S3 (static site) --> CloudFront
 **Backend**
 1. `DATABASE_URL`
 2. `ADMIN_TOKEN`
+3. `GITHUB_CLIENT_ID`
+4. `GITHUB_CLIENT_SECRET`
+5. `JWT_SECRET`
+6. `FRONTEND_URL`
+7. `BACKEND_URL`
 
 **Frontend**
 1. `NEXT_PUBLIC_API_URL`

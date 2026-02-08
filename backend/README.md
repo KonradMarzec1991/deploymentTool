@@ -13,6 +13,13 @@ Required:
    Example: `postgresql+psycopg2://postgres:postgres@localhost:5434/postgres`
 2. `ADMIN_TOKEN`  
    Used for admin-only actions (e.g. approve deployment).
+3. `GITHUB_CLIENT_ID`
+4. `GITHUB_CLIENT_SECRET`
+5. `JWT_SECRET`
+6. `FRONTEND_URL`  
+   Example: `http://localhost:3000`
+7. `BACKEND_URL`  
+   Example: `http://localhost:8002`
 
 ## Run Locally (without Docker)
 ```bash
