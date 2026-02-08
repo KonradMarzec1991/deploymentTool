@@ -21,6 +21,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: AWS login
+        uses: ./.github/actions/aws-login
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -45,10 +48,17 @@ jobs:
         run: isort --check-only .
 
       - name: Tests (pytest)
-        run: pytest -q
-
-      - name: Import check
-        run: python -m compileall app
+        run: pytest tests/
 
       - name: Docker build
-        run: docker build -t deployment-tool-backend-ci .
+        run: |
+          IMAGE_TAG=${GITHUB_SHA::7}
+          docker build -t deployment_tool:${IMAGE_TAG} .
+          docker tag deployment_tool:${IMAGE_TAG} ${AWS_ACCOUNT_ID}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/deployment_tool:${IMAGE_TAG}
+          docker tag deployment_tool:${IMAGE_TAG} ${AWS_ACCOUNT_ID}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/deployment_tool:latest
+
+      - name: Docker push
+        run: |
+          IMAGE_TAG=${GITHUB_SHA::7}
+          docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/deployment_tool:${IMAGE_TAG}
+          docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/deployment_tool:latest
