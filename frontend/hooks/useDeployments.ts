@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { api } from "@/lib/api";
 
 export type Deployment = {
@@ -15,13 +15,19 @@ export function useDeployments() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    api
+  const fetchDeployments = useCallback(() => {
+    setLoading(true);
+    setError(null);
+    return api
       .get<Deployment[]>("/deployments")
       .then((res) => setData(res.data))
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
   }, []);
 
-  return { data, loading, error };
+  useEffect(() => {
+    void fetchDeployments();
+  }, [fetchDeployments]);
+
+  return { data, loading, error, refetch: fetchDeployments };
 }

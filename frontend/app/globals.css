@@ -1,8 +1,11 @@
-@import "tailwindcss";
-
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg-1: #f6f3ee;
+  --bg-2: #e9eef7;
+  --ink: #1b1b1b;
+  --ink-muted: #4b5563;
+  --card: #ffffff;
+  --accent: #1b4332;
+  --accent-2: #335c67;
 }
 
 @theme inline {
@@ -14,13 +17,59 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --bg-1: #0b0f14;
+    --bg-2: #121926;
+    --ink: #e6e9ee;
+    --ink-muted: #9aa3b2;
+    --card: #0f141d;
+    --accent: #74c69d;
+    --accent-2: #5fa8d3;
   }
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background:
+    radial-gradient(1200px 600px at 10% -10%, var(--bg-2), transparent),
+    radial-gradient(900px 600px at 90% 10%, #f1e7da, transparent),
+    var(--bg-1);
+  color: var(--ink);
+  font-family: var(--font-geist-sans), "Segoe UI", sans-serif;
+  min-height: 100vh;
+}
+
+main {
+  padding: 32px 0 56px;
+}
+
+.hero-title {
+  font-size: clamp(28px, 3vw, 40px);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+.hero-subtitle {
+  color: var(--ink-muted);
+  margin-top: 6px;
+  margin-bottom: 0;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(27, 67, 50, 0.12);
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.card-surface {
+  background: var(--card);
+  box-shadow: 0 12px 40px rgba(15, 23, 42, 0.08);
+  border: 1px solid rgba(17, 24, 39, 0.06);
 }
