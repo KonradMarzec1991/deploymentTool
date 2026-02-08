@@ -1,11 +1,18 @@
 import os
 from typing import Annotated
 
-from app.db import get_session
-from app.models import (Deployment, DeploymentCreate, DeploymentRead,
-                        Repository, RepositoryCreate, RepositoryRead)
 from fastapi import APIRouter, Depends, Header, HTTPException, Query
 from sqlmodel import Session, select
+
+from app.db import get_session
+from app.models import (
+    Deployment,
+    DeploymentCreate,
+    DeploymentRead,
+    Repository,
+    RepositoryCreate,
+    RepositoryRead,
+)
 
 router = APIRouter()
 

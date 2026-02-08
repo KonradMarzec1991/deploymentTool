@@ -1,9 +1,10 @@
-from app.api import router
-from app.db import engine
 from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from sqlmodel import SQLModel
+
+from app.api import router
+from app.db import engine
 
 load_dotenv()
 
