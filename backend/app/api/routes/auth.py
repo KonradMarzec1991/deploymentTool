@@ -5,7 +5,7 @@ from fastapi.responses import RedirectResponse
 from sqlmodel import select
 
 from app.api.deps import AdminTokenDep, SessionDep
-from app.models import User, UserCreate, UserRead
+from app.models import LocalLogin, LocalUserCreate, User, UserCreate, UserRead
 from app.services import (
     BACKEND_URL,
     FRONTEND_URL,
@@ -13,6 +13,8 @@ from app.services import (
     create_state,
     github_exchange_code,
     github_fetch_user,
+    hash_password,
+    verify_password,
 )
 
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -87,6 +89,24 @@ async def github_callback(
     return response
 
 
+@router.post("/login")
+def local_login(payload: LocalLogin, session: SessionDep):
+    user = session.exec(
+        select(User).where(
+            User.provider == "local", User.provider_login == payload.username
+        )
+    ).first()
+
+    if not user or not user.is_active or not user.password_hash:
+        raise HTTPException(status_code=401, detail="invalid credentials")
+
+    if not verify_password(payload.password, user.password_hash):
+        raise HTTPException(status_code=401, detail="invalid credentials")
+
+    token = create_access_token(user)
+    return {"access_token": token, "token_type": "bearer"}
+
+
 @router.post("/users", response_model=UserRead)
 def create_user_allowlist(
     payload: UserCreate, session: SessionDep, _auth: AdminTokenDep
@@ -94,6 +114,31 @@ def create_user_allowlist(
     user = User(
         provider=payload.provider,
         provider_login=payload.provider_login,
+        role=payload.role,
+        is_active=payload.is_active,
+    )
+    session.add(user)
+    session.commit()
+    session.refresh(user)
+    return user
+
+
+@router.post("/users/local", response_model=UserRead)
+def create_local_user(
+    payload: LocalUserCreate, session: SessionDep, _auth: AdminTokenDep
+):
+    existing = session.exec(
+        select(User).where(
+            User.provider == "local", User.provider_login == payload.username
+        )
+    ).first()
+    if existing:
+        raise HTTPException(status_code=409, detail="user already exists")
+
+    user = User(
+        provider="local",
+        provider_login=payload.username,
+        password_hash=hash_password(payload.password),
         role=payload.role,
         is_active=payload.is_active,
     )

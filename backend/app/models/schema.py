@@ -9,6 +9,7 @@ class UserBase(SQLModel):
     provider_login: str = Field(index=True, max_length=200)
     provider_id: Optional[str] = Field(default=None, index=True, max_length=50)
     email: Optional[str] = Field(default=None, max_length=320)
+    password_hash: Optional[str] = Field(default=None, max_length=255)
     role: str = Field(default="viewer", max_length=50)
     is_active: bool = Field(default=True)
     created_at: datetime = Field(default_factory=datetime.utcnow)
@@ -27,6 +28,18 @@ class UserCreate(SQLModel):
     provider_login: str = Field(max_length=200)
     role: str = Field(default="viewer", max_length=50)
     is_active: bool = Field(default=True)
+
+
+class LocalUserCreate(SQLModel):
+    username: str = Field(min_length=3, max_length=200)
+    password: str = Field(min_length=8, max_length=200)
+    role: str = Field(default="viewer", max_length=50)
+    is_active: bool = Field(default=True)
+
+
+class LocalLogin(SQLModel):
+    username: str = Field(min_length=3, max_length=200)
+    password: str = Field(min_length=8, max_length=200)
 
 
 class RepositoryBase(SQLModel):

@@ -6,7 +6,9 @@ from app.services.auth import (
     get_current_user,
     github_exchange_code,
     github_fetch_user,
+    hash_password,
     require_role,
+    verify_password,
 )
 
 __all__ = [
@@ -17,5 +19,7 @@ __all__ = [
     "get_current_user",
     "github_exchange_code",
     "github_fetch_user",
+    "hash_password",
     "require_role",
+    "verify_password",
 ]

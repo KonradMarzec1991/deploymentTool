@@ -5,6 +5,7 @@ from typing import Optional
 
 import httpx
 import jwt
+from passlib.context import CryptContext
 from fastapi import Header, HTTPException
 from sqlmodel import Session
 
@@ -18,6 +19,7 @@ BACKEND_URL = os.getenv("BACKEND_URL")
 
 JWT_ALG = "HS256"
 JWT_EXPIRES_MINUTES = int(os.getenv("JWT_EXPIRES_MINUTES", "720"))
+PWD_CONTEXT = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 def create_state() -> str:
@@ -37,6 +39,14 @@ def create_access_token(user: User) -> str:
         "exp": int((now + timedelta(minutes=JWT_EXPIRES_MINUTES)).timestamp()),
     }
     return jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALG)
+
+
+def hash_password(password: str) -> str:
+    return PWD_CONTEXT.hash(password)
+
+
+def verify_password(password: str, password_hash: str) -> bool:
+    return PWD_CONTEXT.verify(password, password_hash)
 
 
 def decode_token(token: str) -> dict:
