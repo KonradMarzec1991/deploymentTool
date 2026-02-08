@@ -1,12 +1,26 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from dotenv import load_dotenv
+from sqlmodel import SQLModel
+
 from app.api import router
+from app.db import engine
+
+load_dotenv()
 
 app = FastAPI(title="CI/CD Platform API")
+
+
+@app.on_event("startup")
+def on_startup() -> None:
+    # Simple bootstrap for learning; replace with Alembic migrations later.
+    SQLModel.metadata.create_all(engine)
+
 
 @app.get("/health")
 def health():
     return {"status": "ok"}
+
 
 origins = [
     "http://localhost:3000",

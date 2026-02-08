@@ -44,5 +44,4 @@ jobs:
         run: aws s3 sync frontend/out s3://deployment-tool-frontend-dev --delete
 
       - name: CloudFront invalidate
-        run: |
-          aws cloudfront create-invalidation --distribution-id E9CTHMV1VAAXA --paths "/*"
+        run: aws cloudfront create-invalidation --distribution-id E9CTHMV1VAAXA --paths "/*"
