@@ -5,13 +5,15 @@ import { CCol, CContainer, CRow } from "@coreui/react";
 import { useRepositories } from "@/hooks/useRepositories";
 import { useDeployments } from "@/hooks/useDeployments";
 import { api } from "@/lib/api";
-import { LoadingState } from "@/components/states/LoadingState";
-import { ErrorState } from "@/components/states/ErrorState";
-import { StatCard } from "@/components/cards/StatCard";
-import { HeroHeader } from "@/components/sections/HeroHeader";
-import { AdminCard } from "@/components/sections/AdminCard";
-import { RepositoriesCard } from "@/components/sections/RepositoriesCard";
-import { DeploymentsCard } from "@/components/sections/DeploymentsCard";
+import {
+  LoadingState,
+  ErrorState,
+  StatCard,
+  HeroHeader,
+  AdminCard,
+  RepositoriesCard,
+  DeploymentsCard,
+} from "@/components";
 
 export default function HomePage() {
   const {
