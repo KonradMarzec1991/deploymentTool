@@ -17,6 +17,10 @@ class RepositoryRead(RepositoryBase):
     id: int
 
 
+class RepositoryCreate(RepositoryBase):
+    pass
+
+
 class DeploymentBase(SQLModel):
     repo_id: int = Field(foreign_key="repository.id", index=True)
     env: str = Field(max_length=50)

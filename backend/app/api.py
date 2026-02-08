@@ -9,6 +9,7 @@ from app.models import (
     DeploymentCreate,
     DeploymentRead,
     Repository,
+    RepositoryCreate,
     RepositoryRead,
 )
 
@@ -18,6 +19,18 @@ router = APIRouter()
 @router.get("/repos", response_model=list[RepositoryRead])
 def get_repos(session: Session = Depends(get_session)):
     return session.exec(select(Repository)).all()
+
+
+@router.post("/repos", response_model=RepositoryRead)
+def create_repo(
+    payload: RepositoryCreate,
+    session: Session = Depends(get_session),
+):
+    repo = Repository(name=payload.name, git_url=payload.git_url)
+    session.add(repo)
+    session.commit()
+    session.refresh(repo)
+    return repo
 
 
 @router.get("/deployments", response_model=list[DeploymentRead])
