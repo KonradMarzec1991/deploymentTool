@@ -47,7 +47,7 @@ jobs:
           grep -R "localhost:8000" out/ || echo "OK – no localhost"
 
       - name: Upload to S3
-        run: aws s3 sync frontend/out s3://deployment-tool-frontend-dev --delete
+        run: aws s3 sync out s3://deployment-tool-frontend-dev --delete
 
       - name: CloudFront invalidate
         run: aws cloudfront create-invalidation --distribution-id E9CTHMV1VAAXA --paths "/*"
