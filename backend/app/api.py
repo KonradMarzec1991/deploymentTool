@@ -1,6 +1,7 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+import os
+from fastapi import APIRouter, Depends, HTTPException, Query, Header
 from sqlmodel import Session, select
 
 from app.db import get_session
@@ -15,6 +16,16 @@ from app.models import (
 
 router = APIRouter()
 
+ADMIN_TOKEN = os.getenv("ADMIN_TOKEN")
+if not ADMIN_TOKEN:
+    raise RuntimeError("ADMIN_TOKEN is not set")
+
+
+def require_admin_token(x_admin_token: str | None = Header(default=None)) -> None:
+    print(x_admin_token)
+    if not x_admin_token or x_admin_token != ADMIN_TOKEN:
+        raise HTTPException(status_code=401, detail="unauthorized")
+
 
 @router.get("/repos", response_model=list[RepositoryRead])
 def get_repos(session: Session = Depends(get_session)):
@@ -25,6 +36,7 @@ def get_repos(session: Session = Depends(get_session)):
 def create_repo(
     payload: RepositoryCreate,
     session: Session = Depends(get_session),
+    _auth: None = Depends(require_admin_token),
 ):
     repo = Repository(name=payload.name, git_url=payload.git_url)
     session.add(repo)
@@ -62,6 +74,7 @@ def get_deployments(
 def create_deployment(
     payload: DeploymentCreate,
     session: Session = Depends(get_session),
+    _auth: None = Depends(require_admin_token),
 ):
     repo = session.get(Repository, payload.repo_id)
     if not repo:
@@ -90,6 +103,7 @@ def create_deployment(
 def approve_deployment(
     deployment_id: int,
     session: Session = Depends(get_session),
+    _auth: None = Depends(require_admin_token),
 ):
     deployment = session.get(Deployment, deployment_id)
     if not deployment:
