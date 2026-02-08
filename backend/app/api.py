@@ -22,20 +22,22 @@ if not ADMIN_TOKEN:
 
 
 def require_admin_token(x_admin_token: str | None = Header(default=None)) -> None:
-    print(x_admin_token)
     if not x_admin_token or x_admin_token != ADMIN_TOKEN:
         raise HTTPException(status_code=401, detail="unauthorized")
 
 
+SessionDep = Annotated[Session, Depends(get_session)]
+
+
 @router.get("/repos", response_model=list[RepositoryRead])
-def get_repos(session: Session = Depends(get_session)):
+def get_repos(session: SessionDep):
     return session.exec(select(Repository)).all()
 
 
 @router.post("/repos", response_model=RepositoryRead)
 def create_repo(
     payload: RepositoryCreate,
-    session: Session = Depends(get_session),
+    session: SessionDep,
     _auth: None = Depends(require_admin_token),
 ):
     repo = Repository(name=payload.name, git_url=payload.git_url)
@@ -47,7 +49,7 @@ def create_repo(
 
 @router.get("/deployments", response_model=list[DeploymentRead])
 def get_deployments(
-    session: Session = Depends(get_session),
+    session: SessionDep,
     offset: int = 0,
     limit: Annotated[int, Query(le=100)] = 100,
 ):
@@ -73,7 +75,7 @@ def get_deployments(
 @router.post("/deployments", response_model=DeploymentRead)
 def create_deployment(
     payload: DeploymentCreate,
-    session: Session = Depends(get_session),
+    session: SessionDep,
     _auth: None = Depends(require_admin_token),
 ):
     repo = session.get(Repository, payload.repo_id)
@@ -102,7 +104,7 @@ def create_deployment(
 @router.post("/deployments/{deployment_id}/approve", response_model=DeploymentRead)
 def approve_deployment(
     deployment_id: int,
-    session: Session = Depends(get_session),
+    session: SessionDep,
     _auth: None = Depends(require_admin_token),
 ):
     deployment = session.get(Deployment, deployment_id)
