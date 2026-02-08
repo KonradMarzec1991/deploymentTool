@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import { useMemo, useState } from "react";
-import { CCol, CContainer, CRow } from "@coreui/react";
-import { useRepositories } from "@/hooks/useRepositories";
-import { useDeployments } from "@/hooks/useDeployments";
-import { api } from "@/lib/api";
+import { useMemo, useState } from 'react';
+import { CCol, CContainer, CRow } from '@coreui/react';
+import { useRepositories } from '@/hooks/useRepositories';
+import { useDeployments } from '@/hooks/useDeployments';
+import { api } from '@/lib/api';
 import {
   LoadingState,
   ErrorState,
@@ -13,14 +13,10 @@ import {
   AdminCard,
   RepositoriesCard,
   DeploymentsCard,
-} from "@/components";
+} from '@/components';
 
 export default function HomePage() {
-  const {
-    data: repos,
-    loading: reposLoading,
-    error: reposError,
-  } = useRepositories();
+  const { data: repos, loading: reposLoading, error: reposError } = useRepositories();
 
   const {
     data: deployments,
@@ -29,18 +25,18 @@ export default function HomePage() {
     refetch: refetchDeployments,
   } = useDeployments();
 
-  const [adminToken, setAdminToken] = useState("");
+  const [adminToken, setAdminToken] = useState('');
   const [actionError, setActionError] = useState<string | null>(null);
   const [approvingId, setApprovingId] = useState<string | null>(null);
 
   const waitingCount = useMemo(
-    () => deployments.filter((d) => d.status === "WAITING_FOR_APPROVAL").length,
+    () => deployments.filter((d) => d.status === 'WAITING_FOR_APPROVAL').length,
     [deployments]
   );
 
   async function handleApprove(deploymentId: string) {
     if (!adminToken) {
-      setActionError("Admin token is required");
+      setActionError('Admin token is required');
       return;
     }
 
@@ -49,11 +45,11 @@ export default function HomePage() {
 
     try {
       await api.post(`/deployments/${deploymentId}/approve`, null, {
-        headers: { "x-admin-token": adminToken },
+        headers: { 'x-admin-token': adminToken },
       });
       await refetchDeployments();
     } catch (err: any) {
-      setActionError(err?.message ?? "Approve failed");
+      setActionError(err?.message ?? 'Approve failed');
     } finally {
       setApprovingId(null);
     }
@@ -78,25 +74,13 @@ export default function HomePage() {
 
         <CRow className="g-3 mb-4">
           <CCol md={4}>
-            <StatCard
-              title="Repositories"
-              value={repos.length}
-              subtitle="Connected services"
-            />
+            <StatCard title="Repositories" value={repos.length} subtitle="Connected services" />
           </CCol>
           <CCol md={4}>
-            <StatCard
-              title="Deployments"
-              value={deployments.length}
-              subtitle="Total tracked"
-            />
+            <StatCard title="Deployments" value={deployments.length} subtitle="Total tracked" />
           </CCol>
           <CCol md={4}>
-            <StatCard
-              title="Approvals"
-              value={waitingCount}
-              subtitle="Pending review"
-            />
+            <StatCard title="Approvals" value={waitingCount} subtitle="Pending review" />
           </CCol>
         </CRow>
 

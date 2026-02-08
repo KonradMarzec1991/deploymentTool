@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import { useCallback, useEffect, useState } from "react";
-import { api } from "@/lib/api";
+import { useCallback, useEffect, useState } from 'react';
+import { api } from '@/lib/api';
 
 export type Deployment = {
   id: string;
@@ -19,7 +19,7 @@ export function useDeployments() {
     setLoading(true);
     setError(null);
     return api
-      .get<Deployment[]>("/deployments")
+      .get<Deployment[]>('/deployments')
       .then((res) => setData(res.data))
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));

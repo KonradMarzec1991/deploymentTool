@@ -30,10 +30,9 @@
 body {
   background:
     radial-gradient(1200px 600px at 10% -10%, var(--bg-2), transparent),
-    radial-gradient(900px 600px at 90% 10%, #f1e7da, transparent),
-    var(--bg-1);
+    radial-gradient(900px 600px at 90% 10%, #f1e7da, transparent), var(--bg-1);
   color: var(--ink);
-  font-family: var(--font-geist-sans), "Segoe UI", sans-serif;
+  font-family: var(--font-geist-sans), 'Segoe UI', sans-serif;
   min-height: 100vh;
 }
 

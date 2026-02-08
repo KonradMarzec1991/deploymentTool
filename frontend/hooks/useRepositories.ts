@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
-import { api } from "@/lib/api";
+import { useEffect, useState } from 'react';
+import { api } from '@/lib/api';
 
 export type Repository = {
   id: string;
@@ -16,7 +16,7 @@ export function useRepositories() {
 
   useEffect(() => {
     api
-      .get<Repository[]>("/repos")
+      .get<Repository[]>('/repos')
       .then((res) => setData(res.data))
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));

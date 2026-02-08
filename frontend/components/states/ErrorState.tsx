@@ -1,4 +1,4 @@
-import { CAlert, CContainer } from "@coreui/react";
+import { CAlert, CContainer } from '@coreui/react';
 
 type ErrorStateProps = {
   message: string;

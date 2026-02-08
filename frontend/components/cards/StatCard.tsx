@@ -1,4 +1,4 @@
-import { CCard, CCardBody, CCardHeader } from "@coreui/react";
+import { CCard, CCardBody, CCardHeader } from '@coreui/react';
 
 type StatCardProps = {
   title: string;

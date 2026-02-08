@@ -10,9 +10,9 @@ import {
   CTableHead,
   CTableHeaderCell,
   CTableRow,
-} from "@coreui/react";
-import type { Deployment } from "@/hooks/useDeployments";
-import { statusColor } from "@/utils/statusColor";
+} from '@coreui/react';
+import type { Deployment } from '@/hooks/useDeployments';
+import { statusColor } from '@/utils/statusColor';
 
 type DeploymentsCardProps = {
   deployments: Deployment[];
@@ -20,11 +20,7 @@ type DeploymentsCardProps = {
   onApprove: (deploymentId: string) => void;
 };
 
-export function DeploymentsCard({
-  deployments,
-  approvingId,
-  onApprove,
-}: DeploymentsCardProps) {
+export function DeploymentsCard({ deployments, approvingId, onApprove }: DeploymentsCardProps) {
   return (
     <CCard className="card-surface">
       <CCardHeader>Deployments</CCardHeader>
@@ -35,9 +31,7 @@ export function DeploymentsCard({
               <CTableHeaderCell>Repository</CTableHeaderCell>
               <CTableHeaderCell>Environment</CTableHeaderCell>
               <CTableHeaderCell>Status</CTableHeaderCell>
-              <CTableHeaderCell className="text-end">
-                Actions
-              </CTableHeaderCell>
+              <CTableHeaderCell className="text-end">Actions</CTableHeaderCell>
             </CTableRow>
           </CTableHead>
           <CTableBody>
@@ -49,7 +43,7 @@ export function DeploymentsCard({
                   <CBadge color={statusColor(d.status)}>{d.status}</CBadge>
                 </CTableDataCell>
                 <CTableDataCell className="text-end">
-                  {d.status === "WAITING_FOR_APPROVAL" ? (
+                  {d.status === 'WAITING_FOR_APPROVAL' ? (
                     <CButton
                       color="dark"
                       variant="outline"
@@ -57,7 +51,7 @@ export function DeploymentsCard({
                       onClick={() => onApprove(d.id)}
                       disabled={approvingId === d.id}
                     >
-                      {approvingId === d.id ? "Approving…" : "Approve"}
+                      {approvingId === d.id ? 'Approving…' : 'Approve'}
                     </CButton>
                   ) : (
                     <span className="text-body-secondary">—</span>

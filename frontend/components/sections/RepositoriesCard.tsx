@@ -8,8 +8,8 @@ import {
   CTableHead,
   CTableHeaderCell,
   CTableRow,
-} from "@coreui/react";
-import type { Repository } from "@/hooks/useRepositories";
+} from '@coreui/react';
+import type { Repository } from '@/hooks/useRepositories';
 
 type RepositoriesCardProps = {
   repos: Repository[];

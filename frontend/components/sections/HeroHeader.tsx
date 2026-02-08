@@ -1,4 +1,4 @@
-import { CBadge, CCol, CRow } from "@coreui/react";
+import { CBadge, CCol, CRow } from '@coreui/react';
 
 type HeroHeaderProps = {
   waitingCount: number;
@@ -15,7 +15,7 @@ export function HeroHeader({ waitingCount }: HeroHeaderProps) {
         </p>
       </CCol>
       <CCol md={4} className="text-md-end mt-3 mt-md-0">
-        <CBadge color={waitingCount ? "warning" : "success"}>
+        <CBadge color={waitingCount ? 'warning' : 'success'}>
           {waitingCount} waiting approvals
         </CBadge>
       </CCol>

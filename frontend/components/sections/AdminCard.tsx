@@ -6,7 +6,7 @@ import {
   CFormInput,
   CInputGroup,
   CInputGroupText,
-} from "@coreui/react";
+} from '@coreui/react';
 
 type AdminCardProps = {
   adminToken: string;
@@ -14,11 +14,7 @@ type AdminCardProps = {
   onTokenChange: (value: string) => void;
 };
 
-export function AdminCard({
-  adminToken,
-  actionError,
-  onTokenChange,
-}: AdminCardProps) {
+export function AdminCard({ adminToken, actionError, onTokenChange }: AdminCardProps) {
   return (
     <CCard className="card-surface h-100">
       <CCardHeader>Admin</CCardHeader>
