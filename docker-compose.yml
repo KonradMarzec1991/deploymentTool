@@ -1,0 +1,41 @@
+services:
+  db:
+    image: postgres:16
+    container_name: deploymenttool-db
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: deploymenttool-backend
+    environment:
+      DATABASE_URL: postgresql+psycopg2://postgres:postgres@db:5432/postgres
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+
+  frontend:
+    image: node:20
+    container_name: deploymenttool-frontend
+    working_dir: /app
+    volumes:
+      - ./frontend:/app
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:8000
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    command: sh -c "npm install && npm run dev"
+
+volumes:
+  db_data:
