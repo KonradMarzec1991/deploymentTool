@@ -1,3 +1,5 @@
+import os
+
 from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -13,8 +15,14 @@ app = FastAPI(title="CI/CD Platform API")
 
 @app.on_event("startup")
 def on_startup() -> None:
-    # Simple bootstrap for learning; replace with Alembic migrations later.
-    SQLModel.metadata.create_all(engine)
+    auto_create = os.getenv("AUTO_CREATE_SCHEMA", "true").lower() in {
+        "1",
+        "true",
+        "yes",
+    }
+    if auto_create:
+        # Simple bootstrap for learning; prefer Alembic migrations in production.
+        SQLModel.metadata.create_all(engine)
 
 
 @app.get("/health")

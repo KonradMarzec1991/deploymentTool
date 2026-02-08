@@ -4,8 +4,15 @@ from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import RedirectResponse
 from sqlmodel import select
 
-from app.api.deps import AdminTokenDep, SessionDep
-from app.models import LocalLogin, LocalUserCreate, User, UserCreate, UserRead
+from app.api.deps import AdminTokenDep, SessionDep, UserDep
+from app.models import (
+    LocalLogin,
+    LocalUserCreate,
+    PasswordChange,
+    User,
+    UserCreate,
+    UserRead,
+)
 from app.services import (
     BACKEND_URL,
     FRONTEND_URL,
@@ -146,3 +153,19 @@ def create_local_user(
     session.commit()
     session.refresh(user)
     return user
+
+
+@router.post("/password")
+def change_password(payload: PasswordChange, session: SessionDep, user: UserDep):
+    if user.provider != "local":
+        raise HTTPException(status_code=400, detail="password login not enabled")
+    if not user.password_hash:
+        raise HTTPException(status_code=400, detail="password not set")
+    if not verify_password(payload.current_password, user.password_hash):
+        raise HTTPException(status_code=401, detail="invalid credentials")
+
+    user.password_hash = hash_password(payload.new_password)
+    session.add(user)
+    session.commit()
+    session.refresh(user)
+    return {"status": "ok"}

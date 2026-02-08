@@ -32,6 +32,7 @@ This runs:
 2. Backend API on `http://localhost:8002`
 3. Frontend on `http://localhost:3000`
 
+
 ## CI/CD Overview
 
 **Backend** (`.github/workflows/backend-ci.yml`)

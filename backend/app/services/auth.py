@@ -5,8 +5,8 @@ from typing import Optional
 
 import httpx
 import jwt
-from passlib.context import CryptContext
 from fastapi import Header, HTTPException
+from passlib.context import CryptContext
 from sqlmodel import Session
 
 from app.models import User

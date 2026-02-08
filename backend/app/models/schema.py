@@ -42,6 +42,11 @@ class LocalLogin(SQLModel):
     password: str = Field(min_length=8, max_length=200)
 
 
+class PasswordChange(SQLModel):
+    current_password: str = Field(min_length=8, max_length=200)
+    new_password: str = Field(min_length=8, max_length=200)
+
+
 class RepositoryBase(SQLModel):
     name: str = Field(index=True, max_length=200)
     git_url: str = Field(max_length=500)

@@ -42,3 +42,23 @@ def test_local_login_invalid_password():
         "/auth/login", json={"username": "alice", "password": "wrongpass"}
     )
     assert response.status_code == 401
+
+
+def test_change_password():
+    client = TestClient(app)
+    login = client.post(
+        "/auth/login", json={"username": "alice", "password": "password123"}
+    )
+    token = login.json()["access_token"]
+
+    response = client.post(
+        "/auth/password",
+        headers={"Authorization": f"Bearer {token}"},
+        json={"current_password": "password123", "new_password": "newpassword123"},
+    )
+    assert response.status_code == 200
+
+    relogin = client.post(
+        "/auth/login", json={"username": "alice", "password": "newpassword123"}
+    )
+    assert relogin.status_code == 200

@@ -39,6 +39,32 @@ cd backend
 pytest tests/
 ```
 
+## Migrations (Alembic)
+Alembic is set up for schema migrations. In production, prefer running migrations
+and disable auto schema creation.
+
+**Run migrations (fresh DB)**
+```bash
+cd backend
+export DATABASE_URL=postgresql+psycopg2://postgres:postgres@localhost:5434/postgres
+alembic upgrade head
+```
+
+**Existing DB (already has tables)**
+If the schema already exists but alembic wasn't tracking it, stamp the current
+state, then run upgrades.
+```bash
+cd backend
+export DATABASE_URL=postgresql+psycopg2://postgres:postgres@localhost:5434/postgres
+alembic stamp head
+alembic upgrade head
+```
+
+**Disable auto schema creation**
+```bash
+export AUTO_CREATE_SCHEMA=false
+```
+
 ## API Overview
 1. `GET /repos` list repositories
 2. `POST /repos` create repository (admin)
