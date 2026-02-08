@@ -1,44 +1,17 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import {
-  CBadge,
-  CButton,
-  CCard,
-  CCardBody,
-  CCardHeader,
-  CCol,
-  CContainer,
-  CFormInput,
-  CInputGroup,
-  CInputGroupText,
-  CRow,
-  CTable,
-  CTableBody,
-  CTableDataCell,
-  CTableHead,
-  CTableHeaderCell,
-  CTableRow,
-  CAlert,
-} from "@coreui/react";
+import { CCol, CContainer, CRow } from "@coreui/react";
 import { useRepositories } from "@/hooks/useRepositories";
 import { useDeployments } from "@/hooks/useDeployments";
 import { api } from "@/lib/api";
-
-function statusColor(status: string) {
-  switch (status) {
-    case "WAITING_FOR_APPROVAL":
-      return "warning";
-    case "APPROVED":
-      return "info";
-    case "DEPLOYED":
-      return "success";
-    case "FAILED":
-      return "danger";
-    default:
-      return "secondary";
-  }
-}
+import { LoadingState } from "@/components/states/LoadingState";
+import { ErrorState } from "@/components/states/ErrorState";
+import { StatCard } from "@/components/cards/StatCard";
+import { HeroHeader } from "@/components/sections/HeroHeader";
+import { AdminCard } from "@/components/sections/AdminCard";
+import { RepositoriesCard } from "@/components/sections/RepositoriesCard";
+import { DeploymentsCard } from "@/components/sections/DeploymentsCard";
 
 export default function HomePage() {
   const {
@@ -85,175 +58,67 @@ export default function HomePage() {
   }
 
   if (reposLoading || deploymentsLoading) {
-    return (
-      <CContainer className="py-5">
-        <CCard className="card-surface">
-          <CCardBody>Loading data…</CCardBody>
-        </CCard>
-      </CContainer>
-    );
+    return <LoadingState />;
   }
 
   if (reposError) {
-    return (
-      <CContainer className="py-5">
-        <CAlert color="danger">Repos error: {reposError}</CAlert>
-      </CContainer>
-    );
+    return <ErrorState message={`Repos error: ${reposError}`} />;
   }
 
   if (deploymentsError) {
-    return (
-      <CContainer className="py-5">
-        <CAlert color="danger">Deployments error: {deploymentsError}</CAlert>
-      </CContainer>
-    );
+    return <ErrorState message={`Deployments error: ${deploymentsError}`} />;
   }
 
   return (
     <main>
       <CContainer>
-        <CRow className="align-items-center mb-4">
-          <CCol md={8}>
-            <div className="pill">Release Control Center</div>
-            <h1 className="hero-title">Deployment Tool</h1>
-            <p className="hero-subtitle">
-              Track deployments, approvals, and environment readiness in one
-              place.
-            </p>
-          </CCol>
-          <CCol md={4} className="text-md-end mt-3 mt-md-0">
-            <CBadge color={waitingCount ? "warning" : "success"}>
-              {waitingCount} waiting approvals
-            </CBadge>
-          </CCol>
-        </CRow>
+        <HeroHeader waitingCount={waitingCount} />
 
         <CRow className="g-3 mb-4">
           <CCol md={4}>
-            <CCard className="card-surface h-100">
-              <CCardHeader>Repositories</CCardHeader>
-              <CCardBody>
-                <div className="fs-2 fw-bold">{repos.length}</div>
-                <div className="text-body-secondary">Connected services</div>
-              </CCardBody>
-            </CCard>
+            <StatCard
+              title="Repositories"
+              value={repos.length}
+              subtitle="Connected services"
+            />
           </CCol>
           <CCol md={4}>
-            <CCard className="card-surface h-100">
-              <CCardHeader>Deployments</CCardHeader>
-              <CCardBody>
-                <div className="fs-2 fw-bold">{deployments.length}</div>
-                <div className="text-body-secondary">Total tracked</div>
-              </CCardBody>
-            </CCard>
+            <StatCard
+              title="Deployments"
+              value={deployments.length}
+              subtitle="Total tracked"
+            />
           </CCol>
           <CCol md={4}>
-            <CCard className="card-surface h-100">
-              <CCardHeader>Approvals</CCardHeader>
-              <CCardBody>
-                <div className="fs-2 fw-bold">{waitingCount}</div>
-                <div className="text-body-secondary">Pending review</div>
-              </CCardBody>
-            </CCard>
+            <StatCard
+              title="Approvals"
+              value={waitingCount}
+              subtitle="Pending review"
+            />
           </CCol>
         </CRow>
 
         <CRow className="g-4">
           <CCol lg={5}>
-            <CCard className="card-surface h-100">
-              <CCardHeader>Admin</CCardHeader>
-              <CCardBody>
-                <CInputGroup className="mb-3">
-                  <CInputGroupText>Token</CInputGroupText>
-                  <CFormInput
-                    type="password"
-                    value={adminToken}
-                    onChange={(e) => setAdminToken(e.target.value)}
-                    placeholder="Enter admin token"
-                  />
-                </CInputGroup>
-                {actionError && (
-                  <CAlert color="danger" className="mb-0">
-                    {actionError}
-                  </CAlert>
-                )}
-              </CCardBody>
-            </CCard>
+            <AdminCard
+              adminToken={adminToken}
+              actionError={actionError}
+              onTokenChange={setAdminToken}
+            />
           </CCol>
 
           <CCol lg={7}>
-            <CCard className="card-surface h-100">
-              <CCardHeader>Repositories</CCardHeader>
-              <CCardBody>
-                <CTable responsive>
-                  <CTableHead>
-                    <CTableRow>
-                      <CTableHeaderCell>Name</CTableHeaderCell>
-                    </CTableRow>
-                  </CTableHead>
-                  <CTableBody>
-                    {repos.map((repo) => (
-                      <CTableRow key={repo.id}>
-                        <CTableDataCell>{repo.name}</CTableDataCell>
-                      </CTableRow>
-                    ))}
-                  </CTableBody>
-                </CTable>
-              </CCardBody>
-            </CCard>
+            <RepositoriesCard repos={repos} />
           </CCol>
         </CRow>
 
         <CRow className="g-4 mt-1">
           <CCol>
-            <CCard className="card-surface">
-              <CCardHeader>Deployments</CCardHeader>
-              <CCardBody>
-                <CTable responsive align="middle">
-                  <CTableHead>
-                    <CTableRow>
-                      <CTableHeaderCell>Repository</CTableHeaderCell>
-                      <CTableHeaderCell>Environment</CTableHeaderCell>
-                      <CTableHeaderCell>Status</CTableHeaderCell>
-                      <CTableHeaderCell className="text-end">
-                        Actions
-                      </CTableHeaderCell>
-                    </CTableRow>
-                  </CTableHead>
-                  <CTableBody>
-                    {deployments.map((d) => (
-                      <CTableRow key={d.id}>
-                        <CTableDataCell>{d.repo}</CTableDataCell>
-                        <CTableDataCell>{d.env}</CTableDataCell>
-                        <CTableDataCell>
-                          <CBadge color={statusColor(d.status)}>
-                            {d.status}
-                          </CBadge>
-                        </CTableDataCell>
-                        <CTableDataCell className="text-end">
-                          {d.status === "WAITING_FOR_APPROVAL" ? (
-                            <CButton
-                              color="dark"
-                              variant="outline"
-                              size="sm"
-                              onClick={() => handleApprove(d.id)}
-                              disabled={approvingId === d.id}
-                            >
-                              {approvingId === d.id
-                                ? "Approving…"
-                                : "Approve"}
-                            </CButton>
-                          ) : (
-                            <span className="text-body-secondary">—</span>
-                          )}
-                        </CTableDataCell>
-                      </CTableRow>
-                    ))}
-                  </CTableBody>
-                </CTable>
-              </CCardBody>
-            </CCard>
+            <DeploymentsCard
+              deployments={deployments}
+              approvingId={approvingId}
+              onApprove={handleApprove}
+            />
           </CCol>
         </CRow>
       </CContainer>
