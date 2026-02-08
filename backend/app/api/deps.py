@@ -19,6 +19,7 @@ def require_admin_token(x_admin_token: str | None = Header(default=None)) -> Non
 
 
 SessionDep = Annotated[Session, Depends(get_session)]
+AdminTokenDep = Annotated[None, Depends(require_admin_token)]
 
 
 def get_current_user_dep(
@@ -33,3 +34,6 @@ UserDep = Annotated[User, Depends(get_current_user_dep)]
 def require_admin_user(user: UserDep) -> User:
     require_role(user, {"admin"})
     return user
+
+
+AdminUserDep = Annotated[User, Depends(require_admin_user)]

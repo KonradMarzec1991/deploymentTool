@@ -1,16 +1,10 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, HTTPException, Query
 from sqlmodel import select
 
-from app.api.deps import SessionDep, require_admin_user
-from app.models import (
-    Deployment,
-    DeploymentCreate,
-    DeploymentRead,
-    Repository,
-    User,
-)
+from app.api.deps import AdminUserDep, SessionDep
+from app.models import Deployment, DeploymentCreate, DeploymentRead, Repository
 
 router = APIRouter(prefix="/deployments", tags=["deployments"])
 
@@ -44,7 +38,7 @@ def get_deployments(
 def create_deployment(
     payload: DeploymentCreate,
     session: SessionDep,
-    _user: User = Depends(require_admin_user),
+    _user: AdminUserDep,
 ):
     repo = session.get(Repository, payload.repo_id)
     if not repo:
@@ -73,7 +67,7 @@ def create_deployment(
 def approve_deployment(
     deployment_id: int,
     session: SessionDep,
-    _user: User = Depends(require_admin_user),
+    _user: AdminUserDep,
 ):
     deployment = session.get(Deployment, deployment_id)
     if not deployment:

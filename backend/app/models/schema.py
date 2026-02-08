@@ -3,6 +3,7 @@ from typing import Optional
 
 from sqlmodel import Field, SQLModel
 
+
 class UserBase(SQLModel):
     provider: str = Field(default="github", max_length=50)
     provider_login: str = Field(index=True, max_length=200)

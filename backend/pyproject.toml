@@ -4,6 +4,7 @@ line-length = 88
 [tool.isort]
 profile = "black"
 line_length = 88
+known_first_party = ["app"]
 
 [tool.ruff]
 line-length = 88
@@ -11,3 +12,6 @@ target-version = "py311"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "W", "B"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["app"]

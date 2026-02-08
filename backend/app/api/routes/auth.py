@@ -1,10 +1,10 @@
 import os
 
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import RedirectResponse
 from sqlmodel import select
 
-from app.api.deps import SessionDep, require_admin_token
+from app.api.deps import AdminTokenDep, SessionDep
 from app.models import User, UserCreate, UserRead
 from app.services import (
     BACKEND_URL,
@@ -89,9 +89,7 @@ async def github_callback(
 
 @router.post("/users", response_model=UserRead)
 def create_user_allowlist(
-    payload: UserCreate,
-    session: SessionDep,
-    _auth: None = Depends(require_admin_token),
+    payload: UserCreate, session: SessionDep, _auth: AdminTokenDep
 ):
     user = User(
         provider=payload.provider,

@@ -1,8 +1,8 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter
 from sqlmodel import select
 
-from app.api.deps import SessionDep, require_admin_user
-from app.models import Repository, RepositoryCreate, RepositoryRead, User
+from app.api.deps import AdminUserDep, SessionDep
+from app.models import Repository, RepositoryCreate, RepositoryRead
 
 router = APIRouter(prefix="/repos", tags=["repos"])
 
@@ -16,7 +16,7 @@ def get_repos(session: SessionDep):
 def create_repo(
     payload: RepositoryCreate,
     session: SessionDep,
-    _user: User = Depends(require_admin_user),
+    _user: AdminUserDep,
 ):
     repo = Repository(name=payload.name, git_url=payload.git_url)
     session.add(repo)
