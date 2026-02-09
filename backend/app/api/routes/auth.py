@@ -11,6 +11,7 @@ from app.models import (
     PasswordChange,
     User,
     UserCreate,
+    UserProfile,
     UserRead,
 )
 from app.services import (
@@ -98,6 +99,12 @@ async def github_callback(
 
 @router.post("/login")
 def local_login(payload: LocalLogin, session: SessionDep):
+    superadmin_username = os.getenv("SUPERADMIN_USERNAME", "").strip()
+    if payload.username != superadmin_username and len(payload.password) < 8:
+        raise HTTPException(
+            status_code=422, detail="password must be at least 8 characters"
+        )
+
     user = session.exec(
         select(User).where(
             User.provider == "local", User.provider_login == payload.username
@@ -112,6 +119,11 @@ def local_login(payload: LocalLogin, session: SessionDep):
 
     token = create_access_token(user)
     return {"access_token": token, "token_type": "bearer"}
+
+
+@router.get("/me", response_model=UserProfile)
+def get_profile(user: UserDep):
+    return user
 
 
 @router.post("/users", response_model=UserRead)

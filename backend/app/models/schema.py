@@ -23,6 +23,17 @@ class UserRead(UserBase):
     id: int
 
 
+class UserProfile(SQLModel):
+    id: int
+    provider: str
+    provider_login: str
+    provider_id: Optional[str] = None
+    email: Optional[str] = None
+    role: str
+    is_active: bool
+    created_at: datetime
+
+
 class UserCreate(SQLModel):
     provider: str = Field(default="github", max_length=50)
     provider_login: str = Field(max_length=200)
@@ -39,7 +50,7 @@ class LocalUserCreate(SQLModel):
 
 class LocalLogin(SQLModel):
     username: str = Field(min_length=3, max_length=200)
-    password: str = Field(min_length=8, max_length=200)
+    password: str = Field(max_length=200)
 
 
 class PasswordChange(SQLModel):

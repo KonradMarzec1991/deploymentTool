@@ -10,6 +10,7 @@ from app.models.schema import (
     RepositoryRead,
     User,
     UserCreate,
+    UserProfile,
     UserRead,
 )
 
@@ -25,5 +26,6 @@ __all__ = [
     "RepositoryRead",
     "User",
     "UserCreate",
+    "UserProfile",
     "UserRead",
 ]

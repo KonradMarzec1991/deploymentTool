@@ -56,7 +56,15 @@ export default function LoginPage() {
       setAuthToken(accessToken);
       router.replace('/');
     } catch (err: any) {
-      setError(err?.response?.data?.detail ?? err?.message ?? 'Login failed');
+      const detail = err?.response?.data?.detail;
+      const message =
+        typeof detail === 'string'
+          ? detail
+          : Array.isArray(detail)
+            ? detail.map((item) => item?.msg ?? JSON.stringify(item)).join(', ')
+            : detail?.msg ?? err?.message ?? 'Login failed';
+
+      setError(message);
     } finally {
       setSubmitting(false);
     }
@@ -68,13 +76,18 @@ export default function LoginPage() {
         <CRow className="justify-content-center">
           <CCol md={6} lg={5}>
             <CCard className="card-surface">
-              <CCardHeader>Sign in</CCardHeader>
+              <CCardHeader>Log in</CCardHeader>
               <CCardBody>
                 <div className="text-body-secondary mb-3">
                   Authorize to manage deployments.
                 </div>
                 {error && (
-                  <CAlert color="danger" className="mb-3">
+                  <CAlert
+                    color="danger"
+                    className="mb-3"
+                    dismissible
+                    onClose={() => setError(null)}
+                  >
                     {error}
                   </CAlert>
                 )}
@@ -101,7 +114,7 @@ export default function LoginPage() {
                     />
                   </div>
                   <CButton color="primary" className="w-100" type="submit" disabled={submitting}>
-                    {submitting ? 'Signing in…' : 'Sign in'}
+                    {submitting ? 'Logging in…' : 'Log in'}
                   </CButton>
                 </CForm>
                 <CButton
