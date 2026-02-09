@@ -1,3 +1,5 @@
+'use client';
+
 import { CAlert, CContainer } from '@coreui/react';
 
 type ErrorStateProps = {

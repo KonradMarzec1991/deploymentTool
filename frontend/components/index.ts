@@ -1,5 +1,6 @@
 export * from './cards/StatCard';
 
+export * from './TopNav';
 export * from './sections/HeroHeader';
 export * from './sections/AccountCard';
 export * from './sections/RepositoriesCard';

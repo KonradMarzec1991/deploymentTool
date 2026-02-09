@@ -1,3 +1,5 @@
+'use client';
+
 import { CCard, CCardBody, CContainer } from '@coreui/react';
 
 type LoadingStateProps = {
