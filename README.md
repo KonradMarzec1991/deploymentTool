@@ -74,6 +74,41 @@ Frontend CI/CD
 S3 (static site) --> CloudFront
 ```
 
+## Infra Notes (ALB/ECS/DNS)
+
+Current production wiring (simplified):
+
+```text
+Internet
+  |
+  |  DNS: api.deployment-tool.pl
+  |  CNAME -> <ALB DNS name>
+  v
+ALB (public)
+  SG inbound: 80/443 from 0.0.0.0/0
+  Listeners:
+    - 80  -> forward -> Target Group (port 8000)
+    - 443 -> forward -> Target Group (port 8000, ACM cert)
+  |
+  v
+Target Group (type: ip, health /health, port 8000)
+  |
+  v
+ECS Service (Fargate, awsvpc)
+  |
+  v
+ECS Tasks (backend container on port 8000)
+  SG inbound: 8000 from ALB SG
+  SG outbound: 0.0.0.0/0
+```
+
+### Why Terraform Helps
+
+Terraform makes this setup reproducible and less error-prone:
+1. **Single source of truth** for ALB, TG, SG, ECS, DNS.
+2. **Repeatable environments** without manual console steps.
+3. **Safer changes** via plan/apply diffs.
+
 ## Environment Variables
 
 **Backend**
