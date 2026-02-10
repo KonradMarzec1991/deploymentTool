@@ -34,6 +34,7 @@ async def github_login():
         raise HTTPException(status_code=500, detail="oauth urls not configured")
     if not os.getenv("GITHUB_CLIENT_ID"):
         raise HTTPException(status_code=500, detail="github oauth not configured")
+
     state = create_state()
     url = (
         "https://github.com/login/oauth/authorize"
@@ -69,8 +70,7 @@ async def github_callback(
 
     access_token = await github_exchange_code(code)
     github_user, email = await github_fetch_user(access_token)
-    print("**********")
-    print(github_user)
+
     login = github_user.get("login")
     github_id = github_user.get("id")
 
@@ -87,6 +87,7 @@ async def github_callback(
     user.provider_id = str(github_id)
     if email:
         user.email = email
+
     session.add(user)
     session.commit()
     session.refresh(user)

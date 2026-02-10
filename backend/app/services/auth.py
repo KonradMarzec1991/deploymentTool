@@ -29,6 +29,7 @@ def create_state() -> str:
 def create_access_token(user: User) -> str:
     if not JWT_SECRET:
         raise HTTPException(status_code=500, detail="JWT_SECRET is not set")
+
     now = datetime.now(timezone.utc)
     payload = {
         "sub": str(user.id),
@@ -38,6 +39,7 @@ def create_access_token(user: User) -> str:
         "iat": int(now.timestamp()),
         "exp": int((now + timedelta(minutes=JWT_EXPIRES_MINUTES)).timestamp()),
     }
+
     return jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALG)
 
 
@@ -85,6 +87,7 @@ def require_role(user: User, roles: set[str]) -> None:
 async def github_exchange_code(code: str) -> str:
     if not GITHUB_CLIENT_ID or not GITHUB_CLIENT_SECRET or not BACKEND_URL:
         raise HTTPException(status_code=500, detail="github oauth not configured")
+
     async with httpx.AsyncClient(timeout=10) as client:
         token_resp = await client.post(
             "https://github.com/login/oauth/access_token",
@@ -96,18 +99,20 @@ async def github_exchange_code(code: str) -> str:
                 "redirect_uri": f"{BACKEND_URL}/auth/github/callback",
             },
         )
+
         token_resp.raise_for_status()
         token_data = token_resp.json()
 
     access_token = token_data.get("access_token")
     if not access_token:
         raise HTTPException(status_code=401, detail="github token failed")
+
     return access_token
 
 
 async def github_fetch_user(access_token: str) -> tuple[dict, Optional[str]]:
-    headers = {"Authorization": f"Bearer {access_token}"}
-    async with httpx.AsyncClient(timeout=10, headers=headers) as client:
+    async with httpx.AsyncClient(timeout=10, headers={"Authorization": f"Bearer {access_token}"}) as client:
+
         user_resp = await client.get("https://api.github.com/user")
         user_resp.raise_for_status()
         user_data = user_resp.json()

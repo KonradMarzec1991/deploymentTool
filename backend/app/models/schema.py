@@ -61,6 +61,7 @@ class PasswordChange(SQLModel):
 class RepositoryBase(SQLModel):
     name: str = Field(index=True, max_length=200)
     git_url: str = Field(max_length=500)
+    github_full_name: str | None = Field(default=None, index=True)
 
 
 class Repository(RepositoryBase, table=True):
