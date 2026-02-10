@@ -7,6 +7,7 @@ export type Repository = {
   id: string;
   name: string;
   url: string;
+  github_full_name: string;
 };
 
 export function useRepositories() {
