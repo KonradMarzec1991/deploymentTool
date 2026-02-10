@@ -8,7 +8,9 @@ import {
   CTableHead,
   CTableHeaderCell,
   CTableRow,
+  CButton,
 } from '@coreui/react';
+import Link from 'next/link';
 import type { Repository } from '@/hooks/useRepositories';
 
 type RepositoriesCardProps = {
@@ -18,7 +20,12 @@ type RepositoriesCardProps = {
 export function RepositoriesCard({ repos }: RepositoriesCardProps) {
   return (
     <CCard className="card-surface h-100">
-      <CCardHeader>Repositories</CCardHeader>
+      <CCardHeader className="d-flex align-items-center justify-content-between">
+        <span>Repositories</span>
+        <Link href="/repos/integrate">
+          <CButton color="primary" size="sm">Add repo</CButton>
+        </Link>
+      </CCardHeader>
       <CCardBody>
         <CTable responsive>
           <CTableHead>
