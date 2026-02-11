@@ -17,6 +17,8 @@ import {
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { api } from '@/lib/api';
+import { getAuthToken } from '@/lib/auth';
+
 
 const Form = () => {
   const router = useRouter();
@@ -33,10 +35,13 @@ const Form = () => {
 
     try {
       const trimmed = repositoryName.trim();
-      await api.post('/repos/integrate', { github_full_name: trimmed });
+      const token = getAuthToken();
+      await api.post('/repos/integrate', { name: trimmed }, { headers: { Authorization: `Bearer ${token}`}});
+
       setSuccess(`Repository ${trimmed} found for your account.`);
       setRepositoryName('');
-      setTimeout(() => router.push('/'), 600);
+      setTimeout(() => router.push('/'), 1000);
+
     } catch (err: any) {
       const detail = err?.response?.data?.detail;
       const message =
@@ -69,6 +74,7 @@ const Form = () => {
         <CFormInput
           id="repository_name"
           autoComplete="repository name"
+          placeholder="fastapi-platform"
           value={repositoryName}
           onChange={(e) => setRepositoryName(e.target.value)}
           required
