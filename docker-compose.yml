@@ -16,6 +16,10 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     container_name: deploymenttool-backend
+    volumes:
+      - ./backend:/app
+    environment:
+      WATCHFILES_FORCE_POLLING: "true"
     env_file:
       - ./backend/.env
     ports:
