@@ -1,4 +1,5 @@
-from typing import Optional
+from datetime import datetime
+from typing import Optional, Literal
 
 from sqlmodel import Field, SQLModel
 
@@ -6,7 +7,7 @@ from sqlmodel import Field, SQLModel
 class RepositoryBase(SQLModel):
     name: str = Field(index=True, max_length=200)
     git_url: str = Field(max_length=500)
-    github_full_name: str | None = Field(default=None, index=True)
+    created_at: datetime = Field(default_factory=datetime.utcnow)
 
 
 class Repository(RepositoryBase, table=True):
@@ -19,3 +20,12 @@ class RepositoryRead(RepositoryBase):
 
 class RepositoryCreate(RepositoryBase):
     pass
+
+
+class RepositoryIntegrate(SQLModel):
+    name: str
+
+
+class RepositoryIntegrateResponse(SQLModel):
+    name: str
+    status: Literal["added", "already_exists"]
