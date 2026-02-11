@@ -1,5 +1,6 @@
 import httpx
 from fastapi import APIRouter, HTTPException
+from sqlalchemy import or_
 from sqlmodel import select
 
 from app.api.deps import AdminUserDep, SessionDep
@@ -25,7 +26,11 @@ def create_repo(
     session: SessionDep,
     _user: AdminUserDep,
 ):
-    repo = Repository(name=payload.name, git_url=payload.git_url)
+    repo = Repository(
+        name=payload.name,
+        git_url=payload.git_url,
+        github_full_name=payload.github_full_name,
+    )
     session.add(repo)
     session.commit()
     session.refresh(repo)
@@ -42,7 +47,12 @@ async def integrate_repo(
 
     github_full_name = f"{user.provider_login}/{name}"
     repository = session.exec(
-        select(Repository).where(Repository.git_url == f"https://github.com/{github_full_name}")
+        select(Repository).where(
+            or_(
+                Repository.github_full_name == github_full_name,
+                Repository.git_url == f"https://github.com/{github_full_name}",
+            )
+        )
     ).first()
     if repository:
         return RepositoryIntegrateResponse(name=repository.name, status="already_exists")
@@ -58,6 +68,7 @@ async def integrate_repo(
     repo = Repository(
         name=name,
         git_url=f"https://github.com/{github_full_name}",
+        github_full_name=github_full_name,
     )
 
     session.add(repo)
