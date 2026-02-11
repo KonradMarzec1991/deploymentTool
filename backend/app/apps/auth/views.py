@@ -6,11 +6,11 @@ from fastapi.responses import RedirectResponse
 from sqlmodel import select
 
 from app.api.deps import AdminTokenDep, SessionDep, UserDep
-from app.models import (
+from app.apps.users.models import User
+from app.apps.users.schema import (
     LocalLogin,
     LocalUserCreate,
     PasswordChange,
-    User,
     UserCreate,
     UserProfile,
     UserRead,
@@ -86,7 +86,7 @@ async def github_callback(
             extra={"login_present": bool(login), "github_id_present": bool(github_id)},
         )
         raise HTTPException(status_code=401, detail="github user invalid")
-    
+
     user = session.exec(
         select(User).where(User.provider == "github", User.provider_login == login)
     ).first()

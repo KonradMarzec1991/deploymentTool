@@ -3,8 +3,13 @@ from fastapi import APIRouter, HTTPException
 from sqlmodel import select
 
 from app.api.deps import AdminUserDep, SessionDep
-from app.models import Repository, RepositoryCreate, RepositoryRead
-from app.models.repository import RepositoryIntegrate, RepositoryIntegrateResponse
+from app.apps.repos.models import Repository
+from app.apps.repos.schema import (
+    RepositoryCreate,
+    RepositoryIntegrate,
+    RepositoryIntegrateResponse,
+    RepositoryRead,
+)
 
 router = APIRouter(prefix="/repos", tags=["repos"])
 

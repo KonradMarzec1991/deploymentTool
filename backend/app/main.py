@@ -6,8 +6,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlmodel import Session, SQLModel, select
 
 from app.api import router
+import app.apps.models  # noqa: F401
+from app.apps.users.models import User
 from app.db import engine
-from app.models import User
 from app.services import hash_password
 
 load_dotenv()

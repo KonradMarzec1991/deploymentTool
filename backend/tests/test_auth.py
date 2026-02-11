@@ -8,7 +8,7 @@ os.environ.setdefault("JWT_SECRET", "test_secret")
 
 from app.db import engine  # noqa: E402
 from app.main import app  # noqa: E402
-from app.models import User  # noqa: E402
+from app.apps.users.models import User  # noqa: E402
 from app.services import hash_password  # noqa: E402
 
 

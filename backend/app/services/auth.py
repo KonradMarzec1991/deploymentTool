@@ -9,7 +9,7 @@ from fastapi import Header, HTTPException
 from passlib.context import CryptContext
 from sqlmodel import Session
 
-from app.models import User
+from app.apps.users.models import User
 
 GITHUB_CLIENT_ID = os.getenv("GITHUB_CLIENT_ID")
 GITHUB_CLIENT_SECRET = os.getenv("GITHUB_CLIENT_SECRET")

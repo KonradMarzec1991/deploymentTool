@@ -2,13 +2,15 @@ import hashlib
 import hmac
 import os
 
-from fastapi import APIRouter, Request, HTTPException
+from fastapi import APIRouter, HTTPException, Request
 from sqlmodel import select
 
 from app.api.deps import SessionDep
-from app.models import Repository, Deployment
+from app.apps.deployments.models import Deployment
+from app.apps.repos.models import Repository
 
 router = APIRouter(prefix="/webhooks", tags=["webhooks"])
+
 
 @router.post("/github/push")
 async def github_push(request: Request, session: SessionDep):
@@ -48,5 +50,3 @@ async def github_push(request: Request, session: SessionDep):
     session.refresh(deployment)
 
     return {"status": "queued", "deployment_id": deployment.id}
-
-

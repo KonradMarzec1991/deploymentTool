@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Optional, Literal
+from typing import Optional
 
 from sqlmodel import Field, SQLModel
 
@@ -12,20 +12,3 @@ class RepositoryBase(SQLModel):
 
 class Repository(RepositoryBase, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
-
-
-class RepositoryRead(RepositoryBase):
-    id: int
-
-
-class RepositoryCreate(RepositoryBase):
-    pass
-
-
-class RepositoryIntegrate(SQLModel):
-    name: str
-
-
-class RepositoryIntegrateResponse(SQLModel):
-    name: str
-    status: Literal["added", "already_exists"]

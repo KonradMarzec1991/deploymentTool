@@ -4,7 +4,9 @@ from fastapi import APIRouter, HTTPException, Query
 from sqlmodel import select
 
 from app.api.deps import AdminUserDep, SessionDep
-from app.models import Deployment, DeploymentCreate, DeploymentRead, Repository
+from app.apps.deployments.models import Deployment
+from app.apps.deployments.schema import DeploymentCreate, DeploymentRead
+from app.apps.repos.models import Repository
 
 router = APIRouter(prefix="/deployments", tags=["deployments"])
 

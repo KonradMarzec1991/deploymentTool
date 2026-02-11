@@ -4,8 +4,8 @@ from typing import Annotated
 from fastapi import Depends, Header, HTTPException
 from sqlmodel import Session
 
+from app.apps.users.models import User
 from app.db import get_session
-from app.models import User
 from app.services import get_current_user, require_role
 
 ADMIN_TOKEN = os.getenv("ADMIN_TOKEN")
