@@ -16,25 +16,68 @@ import {
 
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { api } from '@/lib/api';
 
 const Form = () => {
   const router = useRouter();
   const [submitting, setSubmitting] = useState(false);
+  const [repositoryName, setRepositoryName] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    // ...handleSubmit
-    router.push('/');
+    setError(null);
+    setSuccess(null);
+    setSubmitting(true);
+
+    try {
+      const trimmed = repositoryName.trim();
+      await api.post('/repos/integrate', { github_full_name: trimmed });
+      setSuccess(`Repository ${trimmed} found for your account.`);
+      setRepositoryName('');
+      setTimeout(() => router.push('/'), 600);
+    } catch (err: any) {
+      const detail = err?.response?.data?.detail;
+      const message =
+        typeof detail === 'string'
+          ? detail
+          : Array.isArray(detail)
+            ? detail.map((item) => item?.msg ?? JSON.stringify(item)).join(', ')
+            : detail?.msg ?? err?.message ?? 'Integration failed';
+      setError(message);
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   return (
-    <form onSubmit={handleSubmit}>
-      <h1>IntegratePage</h1>
-      {/* poal */}
+    <CForm onSubmit={handleSubmit} className="mb-3">
+      <div className="text-body-secondary mb-3">Integrate github repository</div>
+      {error && (
+        <CAlert color="danger" className="mb-3" dismissible onClose={() => setError(null)}>
+          {error}
+        </CAlert>
+      )}
+      {success && (
+        <CAlert color="success" className="mb-3" dismissible onClose={() => setSuccess(null)}>
+          {success}
+        </CAlert>
+      )}
+      <div className="mb-3">
+        <CFormLabel htmlFor="Repository Name">Repository Name</CFormLabel>
+        <CFormInput
+          id="repository_name"
+          autoComplete="repository name"
+          value={repositoryName}
+          onChange={(e) => setRepositoryName(e.target.value)}
+          required
+        />
+      </div>
       <CButton color="primary" className="w-100" type="submit" disabled={submitting}>
-        {submitting ? 'Saving…' : 'Save'}
+        {submitting ? 'Submitting…' : 'Submit'}
       </CButton>
-    </form>
+    </CForm>
   );
 };
 
@@ -45,7 +88,7 @@ export default function IntegratePage() {
         <CRow className="justify-content-center">
           <CCol md={6} lg={5}>
             <CCard className="card-surface">
-              <CCardHeader>Integrate repository Form</CCardHeader>
+              <CCardHeader>Integrate</CCardHeader>
               <CCardBody>
                 <Form />
               </CCardBody>
