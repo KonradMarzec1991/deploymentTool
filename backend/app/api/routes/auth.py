@@ -1,3 +1,4 @@
+import logging
 import os
 
 from fastapi import APIRouter, HTTPException, Request
@@ -26,6 +27,7 @@ from app.services import (
 )
 
 router = APIRouter(prefix="/auth", tags=["auth"])
+logger = logging.getLogger(__name__)
 
 
 @router.get("/github/login")
@@ -66,6 +68,10 @@ async def github_callback(
         raise HTTPException(status_code=500, detail="oauth urls not configured")
     cookie_state = request.cookies.get("oauth_state")
     if not cookie_state or cookie_state != state:
+        logger.warning(
+            "github oauth state mismatch",
+            extra={"cookie_state_present": bool(cookie_state)},
+        )
         raise HTTPException(status_code=400, detail="invalid oauth state")
 
     access_token = await github_exchange_code(code)
@@ -75,13 +81,25 @@ async def github_callback(
     github_id = github_user.get("id")
 
     if not login or not github_id:
+        logger.warning(
+            "github user invalid",
+            extra={"login_present": bool(login), "github_id_present": bool(github_id)},
+        )
         raise HTTPException(status_code=401, detail="github user invalid")
-
+    
     user = session.exec(
         select(User).where(User.provider == "github", User.provider_login == login)
     ).first()
 
     if not user or not user.is_active:
+        logger.info(
+            "github login blocked",
+            extra={
+                "login": login,
+                "user_exists": bool(user),
+                "is_active": bool(user and user.is_active),
+            },
+        )
         raise HTTPException(status_code=403, detail="user not allowed")
 
     user.provider_id = str(github_id)
