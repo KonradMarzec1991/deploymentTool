@@ -10,6 +10,7 @@ from app.apps.deployments.models import Deployment
 from app.apps.repos.models import Repository
 
 router = APIRouter(prefix="/webhooks", tags=["webhooks"])
+ALLOWED_PUSH_REFS = {"refs/heads/main", "refs/heads/master"}
 
 
 @router.post("/github/push")
@@ -18,7 +19,7 @@ async def github_push(request: Request, session: SessionDep):
 
     secret = os.getenv("GITHUB_WEBHOOK_SECRET")
     if not secret:
-        raise HTTPException(status_code=500, detail="Missing webhook secret")
+        raise HTTPException(status_code=400, detail="Missing webhook secret")
 
     header_signature = request.headers.get("X-Hub-Signature-256")
     if not header_signature:
@@ -28,18 +29,18 @@ async def github_push(request: Request, session: SessionDep):
     if not hmac.compare_digest(header_signature, signature):
         raise HTTPException(status_code=401, detail="Invalid signature")
 
-    event = request.headers.get("X-GitHub-Event")
+    event = (request.headers.get("X-GitHub-Event") or "").strip().lower()
     if event != "push":
-        return {"ok": True}
+        return {"ok": True, "ignored_event": event}
 
     payload = await request.json()
 
-    if payload.get("ref") != "refs/heads/main":
+    if payload.get("ref") not in ALLOWED_PUSH_REFS:
         return {"ok": True}
 
-    repo_full_name = payload["repository"]["full_name"]
+    repo_name = payload["repository"]["name"]
     repo = session.exec(
-        select(Repository).where(Repository.github_full_name == repo_full_name)
+        select(Repository).where(Repository.name == repo_name)
     ).first()
     if not repo:
         return {"ok": True}
